@@ -47,18 +47,18 @@ def after_request(response):
 def index():
     """Show portfolio of stocks"""
     userID = session["user_id"]
-    symbols = db.execute("SELECT DISTINCT symbol FROM transactions WHERE user_id == ?", userID)
+    symbols = db.execute("SELECT DISTINCT symbol FROM transactions WHERE user_id = ?", userID)
     assets = []
     rows = db.execute("SELECT cash from users WHERE id = ?", userID )
     current_cash = rows[0]["cash"]
     total = current_cash
     for symbol in symbols:
 
-        shares_bought = db.execute("SELECT SUM(shares) FROM transactions WHERE user_id == :userID AND symbol == :symbol AND type == 'buy'", userID = userID, symbol = symbol['symbol'])
-        shares_sold = db.execute("SELECT SUM(shares) FROM transactions WHERE user_id == :userID AND symbol == :symbol AND type == 'sell'", userID = userID, symbol = symbol['symbol'])
-        if shares_sold[0]['SUM(shares)'] is None:
-            shares_sold[0]['SUM(shares)'] = 0
-        net_shares = shares_bought[0]['SUM(shares)'] - shares_sold[0]['SUM(shares)']
+        shares_bought = db.execute("SELECT SUM(shares) FROM transactions WHERE user_id = :userID AND symbol = :symbol AND type = 'buy'", userID = userID, symbol = symbol['symbol'])
+        shares_sold = db.execute("SELECT SUM(shares) FROM transactions WHERE user_id = :userID AND symbol = :symbol AND type = 'sell'", userID = userID, symbol = symbol['symbol'])
+        if shares_sold[0]['sum'] is None:
+            shares_sold[0]['sum'] = 0
+        net_shares = shares_bought[0]['sum'] - shares_sold[0]['sum']
 
         if not net_shares == 0:
             assets.append({"symbol": symbol["symbol"], "name" : lookup(symbol["symbol"])['name'] , "shares" : net_shares , "price" : lookup(symbol["symbol"])['price'] })
@@ -92,8 +92,8 @@ def buy():
                 # make transaction
                 current_cash = current_cash - (shares * price)
                 db.execute("UPDATE users SET cash= :current_cash WHERE id= :userID" , current_cash = current_cash, userID= userID)
-                db.execute("CREATE TABLE IF NOT EXISTS transactions (transaction_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, user_id TEXT NOT NULL, stock TEXT NOT NULL, symbol TEXT NOT NULL, price NUMERIC NOT NULL, shares INTEGER NOT NULL, type TEXT NOT NULL, time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, FOREIGN KEY(user_id) REFERENCES users(id));")
-                db.execute("INSERT INTO transactions (user_id, stock, symbol, price, shares, type) VALUES(?, ?, ?, ?, ?, ?)", userID, stock, symbol, usd(price), shares, 'buy')
+                db.execute("CREATE TABLE IF NOT EXISTS transactions (transaction_id SERIAL NOT NULL PRIMARY KEY, user_id TEXT NOT NULL, stock TEXT NOT NULL, symbol TEXT NOT NULL, price NUMERIC NOT NULL, shares INTEGER NOT NULL, type TEXT NOT NULL, time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, FOREIGN KEY(user_id) REFERENCES users(id));")
+                db.execute("INSERT INTO transactions (user_id, stock, symbol, price, shares, type) VALUES(?, ?, ?, ?, ?, ?)", userID, stock, symbol, price, shares, 'buy')
                 return redirect("/")
 
     else:
@@ -106,7 +106,7 @@ def buy():
 def history():
     """Show history of transactions"""
     userID = session["user_id"]
-    transactions = db.execute("SELECT symbol, shares, type, price, time FROM transactions WHERE user_id == ?", userID)
+    transactions = db.execute("SELECT symbol, shares, type, price, time FROM transactions WHERE user_id = ?", userID)
 
 
     return render_template("history.html", transactions = transactions)
@@ -215,12 +215,12 @@ def sell():
 
     if request.method == "POST":
         symbol = request.form.get("symbol")
-        shares_bought = db.execute("SELECT SUM(shares) FROM transactions WHERE user_id == :userID AND symbol == :symbol AND type == 'buy'", userID = userID, symbol = symbol)
-        shares_sold = db.execute("SELECT SUM(shares) FROM transactions WHERE user_id == :userID AND symbol == :symbol AND type == 'sell'", userID = userID, symbol = symbol)
+        shares_bought = db.execute("SELECT SUM(shares) FROM transactions WHERE user_id = :userID AND symbol = :symbol AND type = 'buy'", userID = userID, symbol = symbol)
+        shares_sold = db.execute("SELECT SUM(shares) FROM transactions WHERE user_id = :userID AND symbol = :symbol AND type = 'sell'", userID = userID, symbol = symbol)
         # rows = db.execute("SELECT SUM(shares) - (SELECT SUM(shares) FROM transactions WHERE user_id == :userID AND symbol == :symbol AND type == 'sell') AS net_shares FROM transactions WHERE user_id == :userID AND symbol == :symbol AND type == 'buy'", userID = userID, symbol = symbol)
-        if shares_sold[0]['SUM(shares)'] is None:
-            shares_sold[0]['SUM(shares)'] = 0
-        net_shares = shares_bought[0]['SUM(shares)'] - shares_sold[0]['SUM(shares)']
+        if shares_sold[0]['sum'] is None:
+            shares_sold[0]['sum'] = 0
+        net_shares = shares_bought[0]['sum'] - shares_sold[0]['sum']
         shares_to_sell = int(request.form.get("shares"))
         if not symbol:
             return apology("INVALID SYMBOL")
@@ -234,10 +234,10 @@ def sell():
             current_cash = cash_list[0]["cash"]
             current_cash = current_cash + difference
             db.execute("UPDATE users SET cash= :current_cash WHERE id= :userID" , current_cash = current_cash, userID= userID)
-            db.execute("INSERT INTO transactions (user_id, stock, symbol, price, shares, type) VALUES(?, ?, ?, ?, ?, ?)", userID, stock, symbol, usd(price), shares_to_sell, 'sell')
+            db.execute("INSERT INTO transactions (user_id, stock, symbol, price, shares, type) VALUES(?, ?, ?, ?, ?, ?)", userID, stock, symbol, price, shares_to_sell, 'sell')
             return redirect("/")
 
     else:
 
-        user_stocks = db.execute("SELECT DISTINCT symbol FROM transactions WHERE user_id == ?", userID )
+        user_stocks = db.execute("SELECT DISTINCT symbol FROM transactions WHERE user_id = ?", userID )
         return render_template("sell.html", options = user_stocks)

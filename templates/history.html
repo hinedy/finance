@@ -22,7 +22,7 @@
                 <td>{{ transaction.symbol | upper() }}</td>
                 <td>{{ transaction.shares }}</td>
                 <td>{{ transaction.type }}</td>
-                <td>{{ transaction.price  }}</td>
+                <td>{{ transaction.price | usd }}</td>
                 <td>{{ transaction.time }}</td>
               </tr>
               {% endfor %}
