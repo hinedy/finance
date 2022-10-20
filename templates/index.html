@@ -1,0 +1,45 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Portfolio
+{% endblock %}
+
+{% block main %}
+        <table class="table table-striped" >
+          <thead>
+            <tr >
+              <td class="fw-bold">Symbol</td>
+              <td class="fw-bold">Name</td>
+              <td class="fw-bold">Shares</td>
+              <td class="fw-bold">Price</td>
+              <td class="fw-bold">Total</td>
+            </tr>
+          </thead>
+          <tbody>
+            {% for asset in assets %}
+            <tr>
+              <td>{{ asset.symbol | upper() }}</td>
+              <td>{{ asset.name }}</td>
+              <td>{{ asset.shares }}</td>
+              <td>{{ asset.price | usd }}</td>
+              <td>{{ (asset.price * asset.shares) | usd }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+          <tfoot>
+            <tr>
+              <td class="border-0 fw-bold text-end" colspan="4">Cash</td>
+              <td>{{current_cash | usd}}</td>
+            </tr>
+            <tr>
+
+              <td class="border-0 fw-bold text-end" colspan="4">Total</td>
+              <td>{{ total | usd }}</td>
+
+            </tr>
+          </tfoot>
+
+
+        </table>
+
+{% endblock %}
