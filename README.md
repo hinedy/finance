@@ -3,7 +3,7 @@
 ## Live on [H Finance](https://hinedy-finance.herokuapp.com).
 
 
-<p align="center"><a href="https://hinedy-finance.herokuapp.com"><img src="static/images/logo.png" width="400" style="filter: drop-shadow(2px 2px white)"></a>
+<p align="center"><a href="https://hinedy-finance.herokuapp.com"><img src="static/images/logo.png" width="400"></a>
 </p>
 
 ### Built as per [Instructions](https://cs50.harvard.edu/x/2022/psets/9/finance/) by [CS50x](https://cs50.harvard.edu/x/2022/) staff.
