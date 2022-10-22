@@ -1,4 +1,4 @@
-# Finance
+# C$50 Finance
  A web app via which you can manage portfolios of stocks, using  IEX Cloud API in a virtual trading environment. 
 ## Live on [H Finance](https://hinedy-finance.herokuapp.com).
 
