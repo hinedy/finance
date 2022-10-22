@@ -28,7 +28,7 @@
 - Flask 
 - Bootstrap
 - Jinja 
-- SQL
+- PostgreSQL
 
 
 ## Deployment 
