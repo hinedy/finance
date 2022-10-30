@@ -30,6 +30,7 @@
 - Jinja 
 - PostgreSQL
 
+Used Docker to run PostgreSQL locally.
 
 ## Deployment 
 
